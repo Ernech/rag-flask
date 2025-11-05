@@ -1,0 +1,27 @@
+version: "3.1"
+
+services:
+  db:
+    image: postgres:14.3
+    container_name: rag-database
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  pgAdmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgAdminWeb
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_ADM_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PG_ADM_PASSWORD}
+      PGADMIN_LISTEN_PORT: 5433
+    ports:
+      - 5433:5433
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    depends_on:
+      - db

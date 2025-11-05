@@ -5,3 +5,4 @@ venv_eflow_docs/
 .env
 services/__pycache__/
 services/__init__.py
+postgres/
