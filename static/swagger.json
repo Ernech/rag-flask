@@ -1,0 +1,325 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Sample API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/update/vectorial-db": {
+            "post": {
+                "summary": "Actualiza la base de datos vectorial con los manuales del eflow",
+                "description": "Utiliza los archivos (manuales) en formato pdf guardados en el directorio establecido para convertirlos en vectores y ser posteriormente almacenados en la base de datos vectorial",
+                "responses": {
+                    "201": {
+                        "description": "Base de datos vectorial actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 100
+                                        },
+                                        "Mensaje": {
+                                            "type": "integer",
+                                            "example": "Se ha actualizado la base de datos vectorial"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Cuando ocurre un error al momento de actualizar la base de datos vecotrial",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "Mensaje": {
+                                            "type": "string",
+                                            "example": "Ocurrió un error"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/load/document": {
+            "post": {
+                "summary": "Registra un nuevo documento en el directorio y en la base de datos vectorial",
+                "description": "Actualizar la base de datos vecotria y también lo Registra en el file system",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "Archivo": {
+                                        "type": "string",
+                                        "example": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9D...",
+                                        "description": "Archivo del manual en formato base64"
+                                    },
+                                    "NombreArchivo": {
+                                        "type": "string",
+                                        "example": "manual.pdf",
+                                        "description": "Nombre del Archivo"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Se ha registrado el archivo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 100
+                                        },
+                                        "Mensaje": {
+                                            "type": "integer",
+                                            "example": "Se ha actualizado la base de datos vectorial"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error en la rquest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 300
+                                        },
+                                        "Mensaje": {
+                                            "type": "integer",
+                                            "example": "Campos no válidos"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Cuando ocurre un error al momento de actualizar la base de datos vecotrial",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "Mensaje": {
+                                            "type": "string",
+                                            "example": "Ocurrió un error"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/rag/query": {
+            "post": {
+                "summary": "Recupera la información de la base de datos vectorial",
+                "description": "Realiza una consulta a la base de datos vectorial para recuperar el contexto para el asistente virtual",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "query": {
+                                        "type": "string",
+                                        "example": "¿Qué es eflow?",
+                                        "description": "Pregunta del usuario al asistente virtual"
+                                    },
+                                    "sources": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "MANUAL EFLOW.pdf",
+                                            "HELPDESK MICROSOFT.pdf"
+                                        ],
+                                        "description": "Fuentes desde dónde se recuperará la información de la base de datos vectorial"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Se ha recuperado la información",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 100
+                                        },
+                                        "Fragmentos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "documento": {
+                                                        "type": "string"
+                                                    },
+                                                    "source": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "example": [
+                                                {
+                                                    "documento": "eFlow es una aplicación WorkFlow que permite la implementación, automatización y seguimiento de procesos de toda índole en los que se involucran tareas...",
+                                                    "source": "MANUAL EFLOW.pdf"
+                                                }
+                                            ]
+                                        },
+                                        "Mensaje": {
+                                            "type": "string",
+                                            "example": "Se ha actualizado la base de datos vectorial"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error en la rquest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 300
+                                        },
+                                        "Fragmentos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "documento": {
+                                                        "type": "string"
+                                                    },
+                                                    "source": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "example": []
+                                        },
+                                        "Mensaje": {
+                                            "type": "integer",
+                                            "example": "Campos no válidos"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Cuando ocurre un error al momento de actualizar la base de datos vecotrial",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "Fragmentos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "documento": {
+                                                        "type": "string"
+                                                    },
+                                                    "source": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "example": []
+                                        },
+                                        "Mensaje": {
+                                            "type": "string",
+                                            "example": "Ocurrió un error"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
