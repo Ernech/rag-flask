@@ -9,6 +9,7 @@ from services.process_doc import index_pdf,is_base64_pdf, is_pdf_filename, save_
 from services.read_docs import get_results
 import os
 import logging
+from database.data_access.indexed_document_data_access import IndexedDocumentDataAccess
     # Now you can access them using os.getenv()
 MANUALES_PATH = os.getenv("MANUALES_PATH")
 
@@ -104,16 +105,35 @@ def rag_query():
         print(e)
         return jsonify({"Codigo":400, "Respuesta":False, "Mensaje":f"Ocrurrió un error {e}"}),500
 
-
+@app.route('/rag/indexed_documents',methods=["GET"])
+def get_all_indexed_documents():
+    try:
+        indexed_documents_da = IndexedDocumentDataAccess()
+        retrieved_indexed_documents_list = indexed_documents_da.getAllIndexedDocuments()
+        if len(retrieved_indexed_documents_list) >0:
+            retrieved_indexed_documents_json = [ {
+                "document_id": document.document_id, 
+                "file_name": document.file_name, 
+                "file_hash": document.file_hash, 
+                "file_path": document.file_path, 
+                "file_source": document.file_source, 
+                "indexed_at": document.indexed_at, 
+                "indexed_by": document.indexed_by, 
+                "status": document.status, 
+                "embedding_model": document.embedding_model, 
+                "chunk_count": document.chunk_count
+            }  for document in retrieved_indexed_documents_list]
+            return jsonify({"Codigo":100, "Respuesta":True, "Mensaje":f"Documentos recuperados","IndexedDocuments":retrieved_indexed_documents_json}),200   
+        else:
+            return jsonify({"Codigo":400, "Respuesta":False, "Mensaje":f"No se encontraron documentos indexados","IndexedDocuments":[]}),404   
+    except Exception as e:
+          return jsonify({"Codigo":400, "Respuesta":False, "Mensaje":f"Ocrurrió un error {e}","IndexedDocuments":[]}),500    
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     if os.getenv("FLASK_ENV") == "local-development":
         logging.info("App runing on local dev mode")
-        db.init_app(app)
-        with app.app_context():
-            db.create_all()
         app.run(debug=True)
     else:
         logging.info("App runing on serve mode")
