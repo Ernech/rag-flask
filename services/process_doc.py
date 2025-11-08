@@ -4,9 +4,12 @@ import re
 import os
 import base64
 import uuid
+import hashlib
+import json
 from pypdf import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from services.vector_store import db_global
+from database.db_connection import get_connection
 
 def extract_text_from_pdf(file_path):
     text = ""
@@ -90,6 +93,29 @@ def save_base64_pdf(base64_string, folder_path, filename):
     with open(file_path, "wb") as f:
         f.write(pdf_data)
 
+
+def get_file_hash(filepath, algorithm="sha256", block_size=65536):
+    """
+    Calculates the hash of a file using the specified algorithm.
+
+    Args:
+        filepath (str): The path to the file.
+        algorithm (str): The hashing algorithm to use (e.g., "md5", "sha1", "sha256").
+        block_size (int): The size of chunks to read from the file.
+
+    Returns:
+        str: The hexadecimal representation of the file's hash.
+    """
+    try:
+        hash_func = getattr(hashlib, algorithm)()
+    except AttributeError:
+        raise ValueError(f"Invalid hash algorithm: {algorithm}. Please choose from available algorithms.")
+
+    with open(filepath, 'rb') as f:
+        for block in iter(lambda: f.read(block_size), b''):
+            hash_func.update(block)
+    return hash_func.hexdigest()
+
 def index_pdf(file_path):
     filename = os.path.basename(file_path)
     text = extract_text_from_pdf(file_path)
@@ -97,6 +123,31 @@ def index_pdf(file_path):
     ids = [f"{filename}_{uuid.uuid4()}" for _ in chunks]
     metadatas = [{"source":filename} for _ in chunks]
     db_global.add_texts(chunks, metadatas=metadatas, ids=ids)
-    
+    store_doc_at_db(file_name=filename, file_path=file_path, source= json.dumps({"source":filename}), model="multilingual-e5-base",chunks=chunks)
 
+def check_if_doc_exists(file_path):
+    file_hash = get_file_hash(file_path)
+    conn = get_connection()
+    doc_exitst = False
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT document_id FROM indexed_documents WHERE file_hash = %s
+        """, (file_hash,))
+        if cur.fetchone():
+            doc_exitst =  True
+    conn.close()
+    return doc_exitst    
+
+def store_doc_at_db( file_name, file_path, source, model, chunks):
+    file_hash = get_file_hash(file_path)
+    chunks_len = len(chunks)
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO indexed_documents 
+            (file_name, file_hash, file_path, file_source, embedding_model, chunk_count, indexed_by)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (file_name, file_hash, file_path, source, model, chunks_len , "admin"))
+        conn.commit()
+    conn.close()
 

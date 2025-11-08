@@ -5,18 +5,17 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from dotenv import load_dotenv
 from typing import List
 load_dotenv() # take environment variables from .env.
-from services.process_doc import index_pdf,is_base64_pdf, is_pdf_filename, save_base64_pdf, db_global as _
+from services.process_doc import index_pdf,is_base64_pdf, is_pdf_filename, save_base64_pdf,check_if_doc_exists, db_global as _
 from services.read_docs import get_results
 import os
 import logging
-
-
     # Now you can access them using os.getenv()
 MANUALES_PATH = os.getenv("MANUALES_PATH")
 
-
 app = Flask(__name__)#multi-qa-MiniLM-L6-cos-v1 #intfloat/multilingual-e5-large
 CORS(app=app)
+#app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Recommended to set to False
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = '/static/swagger.json'  # Our API url (can of course be a local resource)
 
@@ -70,12 +69,13 @@ def load_documento_to_vectorial_db():
                 return jsonify({"Codigo":300, "Respuesta":True, "Mensaje":f"El nombre de archivo no corresponde a documento PDF válido"}),400
             #Verificar si el documento ya existe en el file system
             full_path = os.path.join(MANUALES_PATH, nombre_archivo)
-            if os.path.isfile(full_path):
+            if check_if_doc_exists(full_path):
                 return jsonify({"Codigo":300, "Respuesta":True, "Mensaje":f"El archivo '{nombre_archivo}' ya existe el directorio '{MANUALES_PATH}'"}),400
             #Guardar documento pdf
             save_base64_pdf(archivo,MANUALES_PATH,nombre_archivo)
             #Actualizar la base de conocimiento
             index_pdf(full_path)
+      
             return jsonify({"Codigo":100, "Respuesta":True, "Mensaje":f"Se ha registrado el documento"}),201
         else:
             return jsonify({"Codigo":300, "Respuesta":True, "Mensaje":f"No se recibió data válida"}),400
@@ -111,6 +111,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     if os.getenv("FLASK_ENV") == "local-development":
         logging.info("App runing on local dev mode")
+        db.init_app(app)
+        with app.app_context():
+            db.create_all()
         app.run(debug=True)
     else:
         logging.info("App runing on serve mode")
