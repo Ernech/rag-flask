@@ -320,6 +320,153 @@
                     }
                 }
             }
+        },
+        "/rag/indexed_documents": {
+            "get": {
+                "summary": "Recupera los documentos indexados",
+                "description": "Servicio que recupera la información de los documentos indexados en la base de datos vectorial",
+                "responses": {
+                    "200": {
+                        "description": "Consulta exitosa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 100
+                                        },
+                                        "Mensaje": {
+                                            "type": "string",
+                                            "example": "Se han recuperado los documentos indexados"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "IndexedDocuments": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "document_id": {
+                                                        "type": "integer",
+                                                        "example": 101,
+                                                        "description": "Identificador único del documento indexado."
+                                                    },
+                                                    "file_name": {
+                                                        "type": "string",
+                                                        "example": "manual_usuario.pdf",
+                                                        "description": "Nombre del archivo original."
+                                                    },
+                                                    "file_path": {
+                                                        "type": "string",
+                                                        "example": "/data/docs/manual_usuario.pdf",
+                                                        "description": "Ruta donde se encuentra almacenado el archivo."
+                                                    },
+                                                    "file_hash": {
+                                                        "type": "string",
+                                                        "example": "af9e23b8e912a4e...",
+                                                        "description": "Hash único del archivo para evitar duplicados."
+                                                    },
+                                                    "file_source": {
+                                                        "type": "string",
+                                                        "example": "manual_usuario.pdf",
+                                                        "description": "Fuente o nombre original del documento."
+                                                    },
+                                                    "indexed_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-11-06T15:00:00Z",
+                                                        "description": "Fecha y hora en que se indexó el documento."
+                                                    },
+                                                    "indexed_by": {
+                                                        "type": "string",
+                                                        "example": "ernesto.vilela",
+                                                        "description": "Usuario o proceso que realizó la indexación."
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "indexed",
+                                                        "description": "Estado actual del documento (por ejemplo, 'indexed', 'pending', 'error')."
+                                                    },
+                                                    "embedding_model": {
+                                                        "type": "string",
+                                                        "example": "text-embedding-3-small",
+                                                        "description": "Modelo de embeddings utilizado para indexar el documento."
+                                                    },
+                                                    "chunk_count": {
+                                                        "type": "integer",
+                                                        "example": 32,
+                                                        "description": "Cantidad de fragmentos o chunks generados del documento."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error en la request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 300
+                                        },
+                                        "Mensaje": {
+                                            "type": "integer",
+                                            "example": "No se encontraro documentos indexados"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "IndexedDocuments": {
+                                            "type": "array",
+                                            "example": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "En la consulta de los documentos indexados",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Codigo": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "Mensaje": {
+                                            "type": "string",
+                                            "example": "Ocurrió un error"
+                                        },
+                                        "Respuesta": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "IndexedDocuments": {
+                                            "type": "array",
+                                            "example": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
