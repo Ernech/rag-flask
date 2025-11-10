@@ -94,6 +94,19 @@ def save_base64_pdf(base64_string, folder_path, filename):
         f.write(pdf_data)
 
 
+def get_file_hash_from_base64(base64_data_string: str, algorithm='sha256') -> str:
+    try:
+        # 1. Decode the Base64 string to bytes
+        decoded_bytes = base64.b64decode(base64_data_string)
+
+        # 2. Calculate the hash of the decoded bytes
+        hasher = hashlib.new(algorithm)
+        hasher.update(decoded_bytes)
+        return hasher.hexdigest()
+    except Exception as e:
+        print(f"Error processing Base64 data: {e}")
+        return None
+
 def get_file_hash(filepath, algorithm="sha256", block_size=65536):
     """
     Calculates the hash of a file using the specified algorithm.
@@ -125,8 +138,8 @@ def index_pdf(file_path):
     db_global.add_texts(chunks, metadatas=metadatas, ids=ids)
     store_doc_at_db(file_name=filename, file_path=file_path, source= json.dumps({"source":filename}), model="multilingual-e5-base",chunks=chunks)
 
-def check_if_doc_exists(file_path):
-    file_hash = get_file_hash(file_path)
+def check_if_doc_exists(base64_data_string:str):
+    file_hash = get_file_hash_from_base64(base64_data_string)
     conn = get_connection()
     doc_exitst = False
     with conn.cursor() as cur:

@@ -70,7 +70,7 @@ def load_documento_to_vectorial_db():
                 return jsonify({"Codigo":300, "Respuesta":True, "Mensaje":f"El nombre de archivo no corresponde a documento PDF válido"}),400
             #Verificar si el documento ya existe en el file system
             full_path = os.path.join(MANUALES_PATH, nombre_archivo)
-            if check_if_doc_exists(full_path):
+            if check_if_doc_exists(archivo):
                 return jsonify({"Codigo":300, "Respuesta":True, "Mensaje":f"El archivo '{nombre_archivo}' ya existe el directorio '{MANUALES_PATH}'"}),400
             #Guardar documento pdf
             save_base64_pdf(archivo,MANUALES_PATH,nombre_archivo)

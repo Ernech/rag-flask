@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict
 from typing import Optional
-
+from datetime import datetime
 @dataclass
 class IndexedDocumentModel:
     document_id: Optional[int] = None
@@ -8,7 +8,7 @@ class IndexedDocumentModel:
     file_hash: Optional[str] = None
     file_path: Optional[str] = None
     file_source: Optional[str] = None
-    indexed_at: Optional[str] = None
+    indexed_at: Optional[datetime] = None
     indexed_by: Optional[str] = None
     status: Optional[str] = None
     embedding_model: Optional[str] = None

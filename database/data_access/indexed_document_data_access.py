@@ -7,8 +7,8 @@ class IndexedDocumentDataAccess:
         self.conn=get_connection()
 
     def getAllIndexedDocuments(self):
-        indexed_docuemnts:list[IndexedDocumentModel]=[]
-        query = """"
+        indexed_documents:list[IndexedDocumentModel]=[]
+        query = """
         SELECT document_id, 
                 file_name, 
                 file_hash, 
@@ -26,8 +26,12 @@ class IndexedDocumentDataAccess:
                 cur.execute(query=query)
                 data = cur.fetchall()
                 for indexed_document in data:
-                    indexed_document_retrieved = IndexedDocumentModel.from_db_row(indexed_document=indexed_document)
-                    indexed_docuemnts.append(indexed_document_retrieved)
+                    try:
+                        indexed_document_retrieved = IndexedDocumentModel.from_db_row(indexed_document)                     
+                        indexed_documents.append(indexed_document_retrieved)                      
+                    except Exception as e:
+                        raise Exception("⚠️ Error procesando fila:", e)
+               
             except psycopg2.ProgrammingError as e:
                 raise psycopg2.ProgrammingError(f"Programming Error at getting all indexed documents: {e}")
             except psycopg2.OperationalError as e:
@@ -37,6 +41,6 @@ class IndexedDocumentDataAccess:
             finally:
                 if 'conn' in locals() and self.conn:
                     self.conn.close()
-                return indexed_docuemnts
+                return indexed_documents   
 
            
