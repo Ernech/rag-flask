@@ -136,7 +136,7 @@ def index_pdf(file_path):
     ids = [f"{filename}_{uuid.uuid4()}" for _ in chunks]
     metadatas = [{"source":filename} for _ in chunks]
     db_global.add_texts(chunks, metadatas=metadatas, ids=ids)
-    store_doc_at_db(file_name=filename, file_path=file_path, source= json.dumps({"source":filename}), model="multilingual-e5-base",chunks=chunks)
+    store_doc_at_db(file_name=filename, file_path=file_path, source= json.dumps({"source":filename},ensure_ascii=False), model="multilingual-e5-base",chunks=chunks)
 
 def check_if_doc_exists(base64_data_string:str):
     file_hash = get_file_hash_from_base64(base64_data_string)
